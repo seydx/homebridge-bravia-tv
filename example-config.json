@@ -1,0 +1,25 @@
+{
+"bridge": {
+  ...
+},
+"accessories": [
+  ...
+],
+"platforms": [
+   {
+     "platform": "BraviaTV",
+     "name": "TV",
+     "ipadress": "192.168.1.1",
+     "port": 80,
+     "psk": "YourPSKhere",
+     "tvEnabled": true,
+     "volumeEnabled": true,
+     "inputsEnabled": true,
+     "detectCEC": true,
+     "extraInputs": false,
+     "appsEnabled": true,
+     "channelsEnabled": false,
+     "remoteControl": false
+   }
+]
+}

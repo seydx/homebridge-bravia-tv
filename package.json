@@ -1,0 +1,37 @@
+{
+  "name": "homebridge-bravia-tv",
+  "version": "3.0.0",
+  "description": "homebridge-bravia-tv",
+  "main": "index.js",
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SeydX/homebridge-bravia-tv.git"
+  },
+  "author": "SeydX (https://github.com/SeydX/homebridge-bravia-tv)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/SeydX/homebridge-bravia-tv/issues"
+  },
+  "homepage": "https://github.com/SeydX/homebridge-bravia-tv#readme",
+  "keywords": [
+    "bravia",
+    "player",
+    "homebridge",
+    "homebridge-plugin",
+    "plugin",
+    "tv",
+    "android"
+  ],
+  "engines": {
+    "node": "^8.9.1",
+    "homebridge": "^0.4.38"
+  },
+  "dependencies": {
+    "node-persist": "0.0.8",
+    "async": "2.6.0"
+  }
+}
