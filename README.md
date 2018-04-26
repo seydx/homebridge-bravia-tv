@@ -5,7 +5,7 @@
 [![GitHub last commit](https://img.shields.io/github/last-commit/SeydX/homebridge-bravia-tv.svg?style=flat-square)](https://github.com/SeydX/homebridge-bravia-tv)
 
 ## Homebridge dynamic platform plugin for Sony Bravia Android TVs
-_Note: If you are looking for the non dynamic version, install the old version! [homebridge-sonybravia-platform v2](https://github.com/SeydX/homebridge-sonybravia-platform)_ 
+>_Note: If you are looking for the non dynamic version, install the old version! [homebridge-sonybravia-platform v2](https://github.com/SeydX/homebridge-sonybravia-platform)_ 
 
 
 This is a dynamic platform plugin for [Homebridge](https://github.com/nfarina/homebridge) to control your **Sony Bravia Android TV**. 
