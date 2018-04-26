@@ -23,6 +23,8 @@ This plugin supports following functions:
 
 It's the only plugin that exposes nearly all TV functionalities to HomeKit. All created switches has own characteristics which can be accessed in 3rd party apps like Elgato EVE. It has a built in 'settings' characteristics to adjust the plugin parameter whithin an app! It supports the latest homebridge API and has dynamic platform functionality. It can auto detect new apps _(channels coming soon)_ and add them to HomeKit or remove them. It has cache functionality to cache the TV API in your persist folder (to avoid heavy polling). You have the full functionality about the plugin, you can enable/disable all switches/services/bulbs from your config.json file. And many more functions coming soon!
 
+See [Images](https://github.com/SeydX/homebridge-bravia-tv/tree/master/images/) for more details.
+
 ## Installation instructions
 
 After [Homebridge](https://github.com/nfarina/homebridge) has been installed:
