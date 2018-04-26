@@ -107,9 +107,23 @@ After [Homebridge](https://github.com/nfarina/homebridge) has been installed:
 
 ## In App settings
 
-<img src="https://media.giphy.com/media/1wXb7uG0vdsnoN8eAX/giphy.gif" align="right" alt="In-App Settings">
+<img src="https://github.com/SeydX/homebridge-bravia-tv/blob/master/images/inapps_settings.gif" align="right" alt="In-App Settings">
 
 There are more settings available within the app to customize the plugin for your own whishes _(this has the advantage that you do not have to restart homebridge every time you make changes, see gif)_
+
+- **Channel Source:** Defines the source of your channels (DVBT, DVBC coming soon)
+
+- **Favourite App:** One of the installed apps on the TV, needed for the 'main' apps switch and for Off State
+
+- **Favourite Channel:** One of the channels on the TV, needed for the 'main' channels switch and for Off State
+
+- **Favourite Input:** One of the detected inputs on the TV, needed for the 'main' inputs switch and for Off State
+
+- **Max Volume:** Defines the max adjustable volume via the bulb accessory
+
+- **Off State:** Defines the 'off' mode (HOME; CHANNEL; OFF) by i.e. switching the input, app or channel switch off
+
+- **Polling Interval:** Defines the time of polling the TV
 
 ## Supported clients
 
