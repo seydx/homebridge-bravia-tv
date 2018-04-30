@@ -24,7 +24,6 @@ function BraviaTV (log, config, api) {
   this.accessories = [];
   this.channelArray = [];
   this.channel = 0;
-  this.skipOnLoad = false;
   
   this.configParameter = {
     name: config.name||'TV',
@@ -114,7 +113,7 @@ BraviaTV.prototype = {
         if(err)self.log(err);
         setTimeout(function(){
           self.didFinishLaunching();
-        }, 6000);
+        }, 5000);
       } else {
         self.initPlatform(); 
       }
@@ -123,7 +122,10 @@ BraviaTV.prototype = {
 	
   checkStorage: function(callback){
     const self = this;
-    if(!self.storage.getItem('Sony_Apps')||!self.storage.getItem('Sony_Channels')||!self.storage.getItem('Sony_Remote')||!self.storage.getItem('Sony_Inputs')){
+    if((self.config.appsEnabled && !self.storage.getItem('Sony_Apps'))||
+       (self.config.channelsEnabled && !self.storage.getItem('Sony_Channels'))||
+       (self.config.remoteControl && !self.storage.getItem('Sony_Remote'))||
+       (self.config.inputsEnabled && !self.storage.getItem('Sony_Inputs'))){
       self.log('Missing storage file! Checking TV state...');
       self.getContent('/sony/system', 'getPowerStatus', '1.0', '1.0')
         .then((data) => {
@@ -138,97 +140,117 @@ BraviaTV.prototype = {
               
               async.waterfall([
                 function(next) {
-                  if(!self.storage.getItem('Sony_Apps')){
-                    self.installedApps(function (err, result) {
-                      if (err) {
-                        self.log('An error occurred by getting \'Apps\'! Trying again...');
-                        callback(err, false);
-                      } else {
-                        self.log('Storing \'Sony_Apps\' in cache...');
-                        self.storage.setItem('Sony_Apps', result);
-                        next();
-                      }
-                    });
-                  } else {
-                    next();
-                  }
-                },
-                function(next) {
-                  if(!self.storage.getItem('Sony_Channels')){
-                    self.mainChannels(0, 200, function (err, result) {
-                      if (err) {
-                        self.log('An error occurred by getting \'Channels\'! Trying again...');
-                        callback(err, false);
-                      } else {
-                        self.log('Storing \'Sony_Channels\' in cache...');
-                        self.storage.setItem('Sony_Channels', result);
-                        next();
-                      }
-                    });
-                  } else {
-                    next();
-                  }
-                },
-                function(next) {
-                  if(!self.storage.getItem('Sony_Inputs')){
-                    self.externalInputs(function (err, result) {
-                      if (err) {
-                        self.log('An error occurred by getting \'External inputs\'! Trying again...');
-                        callback(err, false);
-                      } else {
-                        const resultArray = [];
-                        for (const j in result) {
-                          const parameter = {
-                            name: result[j].title,
-                            uri: result[j].uri,
-                            meta: result[j].icon
-                          };
-                          var newConfig = JSON.parse(JSON.stringify(parameter));
-                          resultArray.push(newConfig);
+                  if(self.config.appsEnabled){
+                    if(!self.storage.getItem('Sony_Apps')){
+                      self.installedApps(function (err, result) {
+                        if (err) {
+                          self.log('An error occurred by getting \'Apps\'! Trying again...');
+                          callback(err, false);
+                        } else {
+                          self.log('Storing \'Sony_Apps\' in cache...');
+                          self.storage.setItem('Sony_Apps', result);
+                          next();
                         }
-                        self.log('Storing \'Sony_Inputs\' in cache...');
-                        self.storage.setItem('Sony_Inputs', resultArray);
-                        next();
-                      }
-                    });
+                      });
+                    } else {
+                      next();
+                    }
                   } else {
+                    self.log('Apps not enabled, skip requesting...');
                     next();
                   }
                 },
                 function(next) {
-                  if(!self.storage.getItem('Sony_Remote')){
-                    self.remoteCommands(function (err, result) {
-                      if (err) {
-                        self.log('An error occurred by getting \'Remote control commands\'! Trying again...');
-                        callback(err, false);
-                      } else {
-                        const resultArray = [];
-                        for (const j in result) {
-                          if (result[j].name == 'Up' ||
-                              result[j].name == 'Down' ||
-                              result[j].name == 'Right' ||
-                              result[j].name == 'Left' ||
-                              result[j].name == 'Confirm' ||
-                              result[j].name == 'Exit' ||
-                              result[j].name == 'Home' ||
-                              result[j].name == 'Return' ||
-                              result[j].name == 'Netflix'
-                          ) {
+                  if(self.config.channelsEnabled){
+                    if(!self.storage.getItem('Sony_Channels')){
+                      self.mainChannels(0, 200, function (err, result) {
+                        if (err) {
+                          self.log('An error occurred by getting \'Channels\'! Trying again...');
+                          callback(err, false);
+                        } else {
+                          self.log('Storing \'Sony_Channels\' in cache...');
+                          self.storage.setItem('Sony_Channels', result);
+                          next();
+                        }
+                      });
+                    } else {
+                      next();
+                    }
+                  } else {
+                    self.log('Channels not enabled, skip requesting...');
+                    next();
+                  }
+                },
+                function(next) {
+                  if(self.config.inputsEnabled){
+                    if(!self.storage.getItem('Sony_Inputs')){
+                      self.externalInputs(function (err, result) {
+                        if (err) {
+                          self.log('An error occurred by getting \'External inputs\'! Trying again...');
+                          callback(err, false);
+                        } else {
+                          const resultArray = [];
+                          for (const j in result) {
                             const parameter = {
-                              name: result[j].name,
-                              value: result[j].value
+                              name: result[j].title,
+                              uri: result[j].uri,
+                              meta: result[j].icon
                             };
                             var newConfig = JSON.parse(JSON.stringify(parameter));
                             resultArray.push(newConfig);
                           }
+                          self.log('Storing \'Sony_Inputs\' in cache...');
+                          self.storage.setItem('Sony_Inputs', resultArray);
+                          next();
                         }
-                        self.log('Storing \'Sony_Remote\' in cache...');
-                        self.storage.setItem('Sony_Remote', resultArray);
-                        next(null, 'Finished!');
-                      }
-                    });
+                      });
+                    } else {
+                      next();
+                    }
                   } else {
-                    next(null, 'Finished!');
+                    self.log('Inputs not enabled, skip requesting...');
+                    next();
+                  }
+                },
+                function(next) {
+                  if(self.config.remoteControl){
+                    if(!self.storage.getItem('Sony_Remote')){
+                      self.remoteCommands(function (err, result) {
+                        if (err) {
+                          self.log('An error occurred by getting \'Remote control commands\'! Trying again...');
+                          callback(err, false);
+                        } else {
+                          const resultArray = [];
+                          for (const j in result) {
+                            if (result[j].name == 'Up' ||
+                                result[j].name == 'Down' ||
+                                result[j].name == 'Right' ||
+                                result[j].name == 'Left' ||
+                                result[j].name == 'Confirm' ||
+                                result[j].name == 'Exit' ||
+                                result[j].name == 'Home' ||
+                                result[j].name == 'Return' ||
+                                result[j].name == 'Netflix'
+                            ) {
+                              const parameter = {
+                                name: result[j].name,
+                                value: result[j].value
+                              };
+                              var newConfig = JSON.parse(JSON.stringify(parameter));
+                              resultArray.push(newConfig);
+                            }
+                          }
+                          self.log('Storing \'Sony_Remote\' in cache...');
+                          self.storage.setItem('Sony_Remote', resultArray);
+                          next(null, 'Finished!');
+                        }
+                      });
+                    } else {
+                      next(null, 'Finished!');
+                    }
+                  } else {
+                    self.log('Remote not enabled, skip requesting...');
+                    next();
                   }
                 }
               ], function (err, result) {
@@ -408,45 +430,6 @@ BraviaTV.prototype = {
   initPlatform: function () {
     const self = this;
     var skip;
-    
-    if(self.config.tvEnabled){
-      const allAccessories = self.accessories;
-      for(const j in allAccessories){
-        if(allAccessories[j].displayName == self.config.name + ' Power'){
-          const accessory = allAccessories[j];
-          self.log('Current TV configuration:');
-          self.log('Last volume: ' + accessory.context.lastvolume);
-          self.log('Max configurable volume: ' + accessory.context.maxvolume);
-          self.log('Polling interval: ' + accessory.context.pollinterval / 1000 + ' seconds');
-          self.log('Off State: ' + accessory.context.offstatename);
-          self.log('Channel source: ' + accessory.context.channelsourcename);
-          self.log('Max configurable apps: ' + accessory.context.maxapps);
-          self.log('Favourite app: ' + accessory.context.favappname);
-          self.log('Max configurable channels: ' + accessory.context.maxchannels);
-          self.log('Favourite channel: ' + accessory.context.favchannelname);
-          self.log('Max configurable inputs: ' + accessory.context.maxinputs);
-          self.log('Favourite input: ' + accessory.context.favinputname);
-        }
-      }
-    }
-    
-    if (this.config.tvEnabled) {
-      skip = false;
-      for (const i in this.accessories) {
-        if (this.accessories[i].context.type == this.types.tv) {
-          skip = true;
-        }
-      }
-      if (!skip) {
-        new Device(this, this.types.tv, true);
-      }
-    } else {
-      for (const i in this.accessories) {
-        if (this.accessories[i].context.type == this.types.tv) {
-          this.removeAccessory(this.accessories[i]);
-        }
-      }
-    }
 
     if (this.config.volumeEnabled) {
       skip = false;
@@ -537,11 +520,54 @@ BraviaTV.prototype = {
         }
       }
     }
+    
+    if (this.config.tvEnabled) {
+      skip = false;
+      for (const i in this.accessories) {
+        if (this.accessories[i].context.type == this.types.tv) {
+          skip = true;
+        }
+      }
+      if (!skip) {
+        new Device(this, this.types.tv, true);
+      }
+    } else {
+      for (const i in this.accessories) {
+        if (this.accessories[i].context.type == this.types.tv) {
+          this.removeAccessory(this.accessories[i]);
+        }
+      }
+    }
+    
+    if(self.config.tvEnabled){
+      const allAccessories = self.accessories;
+      for(const j in allAccessories){
+        if(allAccessories[j].displayName == self.config.name + ' Power'){
+          const accessory = allAccessories[j];
+          self.log('Current TV configuration:');
+          self.log('Last volume: ' + accessory.context.lastvolume);
+          self.log('Max configurable volume: ' + accessory.context.maxvolume);
+          self.log('Polling interval: ' + accessory.context.pollinterval / 1000 + ' seconds');
+          self.log('Off State: ' + accessory.context.offstatename);
+          self.log('Channel source: ' + accessory.context.channelsourcename);
+          self.log('Max configurable apps: ' + accessory.context.maxapps);
+          self.log('Favourite app: ' + accessory.context.favappname);
+          self.log('Max configurable channels: ' + accessory.context.maxchannels);
+          self.log('Favourite channel: ' + accessory.context.favchannelname);
+          self.log('Max configurable inputs: ' + accessory.context.maxinputs);
+          self.log('Favourite input: ' + accessory.context.favinputname);
+        }
+      }
+    }
+    
   },
 
   configureAccessory: function (accessory) {
     const self = this;
-    if(!self.storage.getItem('Sony_Apps')||!self.storage.getItem('Sony_Channels')||!self.storage.getItem('Sony_Remote')||!self.storage.getItem('Sony_Inputs')){
+    if((self.config.appsEnabled && !self.storage.getItem('Sony_Apps'))||
+       (self.config.channelsEnabled && !self.storage.getItem('Sony_Channels'))||
+       (self.config.remoteControl && !self.storage.getItem('Sony_Remote'))||
+       (self.config.inputsEnabled && !self.storage.getItem('Sony_Inputs'))){
       setTimeout(function(){
         self.configureAccessory(accessory);
       }, 2000);
