@@ -37,7 +37,6 @@ class BRAVIA {
       inputs: 0,
       apps: 0,
       channels: 0,
-      remote: 0,
       volume: 0
     };
 
@@ -134,6 +133,8 @@ class BRAVIA {
   }
 
   addAccessory (config, type) {
+    const self = this;
+    const allAccessories = self.accessories;
     var accessory, name, deviceType, accessoryType;
 
     switch (type) {
@@ -196,14 +197,16 @@ class BRAVIA {
       accessory.context.favappname = this.storage.getItem('Sony_Apps')[0].title;
       accessory.context.favappnr = 0;
       accessory.context.favappuri = this.storage.getItem('Sony_Apps')[0].uri;
-      accessory.context.maxapps = this.storage.getItem('Sony_Apps').length;
+      for(const i in allAccessories){allAccessories[i].context.maxapps = this.storage.getItem('Sony_Apps').length;}
+      //accessory.context.maxapps = this.storage.getItem('Sony_Apps').length;
     }
     
     if(config.channelsEnabled){
       accessory.context.favchannelname = this.storage.getItem('Sony_Channels')[0].title;
       accessory.context.favchannelnr = 0;
       accessory.context.favchanneluri = this.storage.getItem('Sony_Channels')[0].uri;
-      accessory.context.maxchannels = this.storage.getItem('Sony_Channels').length;
+      //accessory.context.maxchannels = this.storage.getItem('Sony_Channels').length;
+      for(const i in allAccessories){allAccessories[i].context.maxchannels = this.storage.getItem('Sony_Channels').length;}
       accessory.context.channelsourcename = 'tv:dvbt';
       accessory.context.channelsourcenr = 0;
     }
@@ -212,7 +215,8 @@ class BRAVIA {
       accessory.context.favinputname = this.storage.getItem('Sony_Inputs')[0].name;
       accessory.context.favinputnr = 0;
       accessory.context.favinputuri = this.storage.getItem('Sony_Inputs')[0].uri;
-      accessory.context.maxinputs = this.storage.getItem('Sony_Inputs').length;
+      //accessory.context.maxinputs = this.storage.getItem('Sony_Inputs').length;
+      for(const i in allAccessories){allAccessories[i].context.maxinputs = this.storage.getItem('Sony_Inputs').length;}
     }
 
     accessory.getService(Service.AccessoryInformation)
@@ -1006,39 +1010,39 @@ class BRAVIA {
     
     if(service.testCharacteristic(Characteristic.OffStateNr) && service.testCharacteristic(Characteristic.OffStateName)){
       const offStates = { 
-        home: 0,
-        channels: 1,
-        off: 2
-      };	      	    
+        off: 0,
+        home: 1,
+        channels: 2
+      };
       for(const j in allAccessories){
         if(service.getCharacteristic(Characteristic.OffStateNr).value == offStates.home){
           if(self.config.appsEnabled){
             setTimeout(function(){service.getCharacteristic(Characteristic.OffStateName).updateValue('HOME');},500);
             allAccessories[j].context.offstatename = service.getCharacteristic(Characteristic.OffStateName).value; 
-            allAccessories[j].context.offstatenr = 0;
+            allAccessories[j].context.offstatenr = 1;
           } else {
             self.log('Can\'t switch this setting because \'Apps\' is not enabled! Off State: OFF');
             setTimeout(function(){service.getCharacteristic(Characteristic.OffStateName).updateValue('OFF');},500);
             setTimeout(function(){service.getCharacteristic(Characteristic.OffStateNr).updateValue(2);},500);
             allAccessories[j].context.offstatename = service.getCharacteristic(Characteristic.OffStateName).value; 
-            allAccessories[j].context.offstatenr = 2;
+            allAccessories[j].context.offstatenr = 0;
           }
         } else if(service.getCharacteristic(Characteristic.OffStateNr).value == offStates.channels){
           if(self.config.channelsEnabled){
             setTimeout(function(){service.getCharacteristic(Characteristic.OffStateName).updateValue('CHANNEL');},500);
             allAccessories[j].context.offstatename = service.getCharacteristic(Characteristic.OffStateName).value; 
-            allAccessories[j].context.offstatenr = 1;
+            allAccessories[j].context.offstatenr = 2;
           } else {
             self.log('Can\'t switch this setting because \'Channels\' is not enabled! Off State: OFF');
             setTimeout(function(){service.getCharacteristic(Characteristic.OffStateName).updateValue('OFF');},500);
             setTimeout(function(){service.getCharacteristic(Characteristic.OffStateNr).updateValue(2);},500);
             allAccessories[j].context.offstatename = service.getCharacteristic(Characteristic.OffStateName).value; 
-            allAccessories[j].context.offstatenr = 2;
+            allAccessories[j].context.offstatenr = 0;
           }
         } else {
           setTimeout(function(){service.getCharacteristic(Characteristic.OffStateName).updateValue('OFF');},500);
           allAccessories[j].context.offstatename = service.getCharacteristic(Characteristic.OffStateName).value; 
-          allAccessories[j].context.offstatenr = 2;
+          allAccessories[j].context.offstatenr = 0;
         }
       }
     }
@@ -1054,7 +1058,8 @@ class BRAVIA {
           allAccessories[j].context.channelsourcename = service.getCharacteristic(Characteristic.ChannelSourceName).value; 
           allAccessories[j].context.channelsourcenr = 0;
         } else if(service.getCharacteristic(Characteristic.ChannelSourceNr).value == channelSource.dvbc){
-          setTimeout(function(){service.getCharacteristic(Characteristic.ChannelSourceName).updateValue('tv:dvbc');},500);
+          //setTimeout(function(){service.getCharacteristic(Characteristic.ChannelSourceName).updateValue('tv:dvbc');},500);
+          setTimeout(function(){service.getCharacteristic(Characteristic.ChannelSourceName).updateValue('tv:dvbt');},500);
           allAccessories[j].context.channelsourcename = service.getCharacteristic(Characteristic.ChannelSourceName).value; 
           allAccessories[j].context.channelsourcenr = 1;
         }
@@ -1069,6 +1074,7 @@ class BRAVIA {
             setTimeout(function(){service.getCharacteristic(Characteristic.FavInputName).updateValue(inputArray[inputs].name);},500);
             allAccessories[j].context.favinputname = service.getCharacteristic(Characteristic.FavInputName).value; 
             allAccessories[j].context.favinputnr = service.getCharacteristic(Characteristic.FavInputNr).value;
+            allAccessories[j].context.maxinputs = self.storage.getItem('Sony_Inputs').length;
           } 
         }
       }
@@ -1083,6 +1089,7 @@ class BRAVIA {
             allAccessories[j].context.favappname = service.getCharacteristic(Characteristic.FavAppName).value; 
             allAccessories[j].context.favappnr = service.getCharacteristic(Characteristic.FavAppNr).value;
             allAccessories[j].context.favappuri = appsArray[app].uri;
+            allAccessories[j].context.maxapps = self.storage.getItem('Sony_Apps').length;
           } 
         }
       }
@@ -1097,6 +1104,7 @@ class BRAVIA {
             allAccessories[j].context.favchannelname = service.getCharacteristic(Characteristic.FavChannelName).value; 
             allAccessories[j].context.favchannelnr = service.getCharacteristic(Characteristic.FavChannelNr).value;
             allAccessories[j].context.favchanneluri = channelsArray[channel].uri;
+            allAccessories[j].context.maxchannels = self.storage.getItem('Sony_Channels').length;
           } 
         }
       }
