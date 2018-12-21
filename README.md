@@ -52,7 +52,7 @@ After [Homebridge](https://github.com/nfarina/homebridge) has been installed:
       "platform": "BraviaTV",
       "name": "TV",
       "ipadress": "192.168.1.1",
-      "psk": "YourPSKhere",
+      "psk": "YourPSKhere"
     }
 ]
 }
