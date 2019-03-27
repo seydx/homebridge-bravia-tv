@@ -186,8 +186,8 @@ class BRAVIA {
     accessory.context = {};
     accessory.context.type = type;
 
-    accessory.context.lastvolume = 35;
-    accessory.context.maxvolume = 35;
+    accessory.context.lastvolume = 10;
+    accessory.context.maxvolume = 70;
     
     accessory.context.pollinterval = 10000;
     accessory.context.offstatename = 'HOME';
